@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+        crossorigin="anonymous"></script>
+</head>
+<style>
+    .main {
+        padding: 10px
+    }
+
+    .div1 {
+        float: left;
+        width: 40%;
+    }
+
+    .div2 {
+        float: left;
+        width: 50%;
+        margin-left: 5px;
+    }
+
+    .error {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+    <div class="main">
+        <div class=" div1">
+            <h2>Contact Form</h2>
+            <div role="alert" id="error_alert">
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" placeholder="Enter name" name="name">
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+                </div>
+                <br />
+                <div class="form-check gender">
+                    <label for="male" class="form-check-label">Male</label>
+                    <input type="radio" name="gender" value="Male" id="Male" />
+                    <label for="female" class="form-check-label">Female</label>
+                    <input type="radio" name="gender" value="Female" id="Female" />
+                </div>
+                <br />
+                <div class="form-check checkbox">
+                    <label class="form-check-label"><input type="checkbox" name="Sports" value="Sports" id="Sports">
+                        Sports</label>
+                    <label class="form-check-label"><input type="checkbox" name="Music" value="Music" id="Music">
+                        Music</label>
+                    <label class="form-check-label"><input type="checkbox" name="Travel" value="Travel" id="Travel">
+                        Travel</label>
+                </div>
+                <div class="form-group">
+                    <select name="state" id="state" class="form-select">
+                        <option>Select State</option>
+                    </select>
+                </div>
+                <br />
+                <div class="form-group">
+                    <select name="city" id="city" class="form-select">
+                        <option>Select City</option>
+                    </select>
+                </div>
+                <br />
+                <button type="button" class="btn btn-outline-primary" id="submit_btn">Add Data</button>
+                <button type="button" class="btn btn-outline-primary" id="update_btn" style="display:none">Update
+                    Data</button>
+                <button type="button" class="btn btn-outline-dark" onclick=add_data() style="display: none"
+                    id="cancle_btn">Cancle</button>
+            </form>
+        </div>
+
+        <div class="div2">
+            <h2>Contact Data</h2>
+            <br />
+            <div class="form-group">
+                <select name="sorting" id="sorting" class="form-select">
+                    <option>Select Sorting Order</option>
+                    <option id="asc">Ascending</option>
+                    <option id="desc">Descending</option>
+                </select>
+            </div>
+            <br />
+            <label for="searching">Search Name :</label>
+            <input type="text" class="form-control" id="searching" name="searching"
+                placeholder="Search Name Here...!" /><br />
+            <table class="table table-striped" id="data_table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>E-Mail</th>
+                        <th>Gender</th>
+                        <th>Hobbies</th>
+                        <th>State</th>
+                        <th>City</th>
+                        <th>Created Time</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+<script>
+    var ctime = created_time()
+    var table_data = [
+        {
+            id: 0,
+            name: 'sagar',
+            email: 'sagar@gmail.com',
+            gender: 'Male',
+            hobbies: ['Sports'],
+            state: 3,
+            city: 31,
+            created_time: ctime
+        },
+        {
+            id: 1,
+            name: 'abhi',
+            email: 'abhi@gmail.com',
+            gender: 'Male',
+            hobbies: ['Music'],
+            state: 2,
+            city: 21,
+            created_time: ctime
+        }
+    ]
+
+    var states = { 1: 'Gujarat', 2: 'Karnataka', 3: 'Rajsthan' }
+    var cities = { 1: { 11: 'Ahmedabad', 12: 'Vadodara', 13: 'Surat' }, 2: { 21: 'Banglore', 22: 'Manglore', 23: 'Mysuru' }, 3: { 31: 'Udaipur', 32: 'Jaipur', 33: 'Kota' } }
+
+    $(document).ready(function () {
+        add_data();
+        $.each(states, function (key, val) {
+            $("#state").append("<option id=" + key + ">" + val + "</option>")
+        })
+        $("#state").on("change", function () {
+            $("#city").html("<option>Select City</option>")
+            var state_id = $(this).children(":selected").attr("id")
+            $.each(cities, function (key, val) {
+                if (state_id == key) {
+                    $.each(val, function (key, value) {
+                        $("#city").append("<option id=" + key + ">" + value + "</option>")
+                    })
+                }
+            })
+        })
+        $("#submit_btn").click(function (e) {
+            if (validation()) {
+                var all_checked_hobbies = $(".checkbox").find(":checked");
+                var all_hobbies = [];
+                $.each(all_checked_hobbies, function (i, v) {
+                    all_hobbies.push(all_checked_hobbies[i].value)
+                })
+                var ctime = created_time()
+                table_data.push({
+                    id: table_data.length,
+                    name: $("#name").val(),
+                    email: $("#email").val(),
+                    gender: $("input[name='gender']:checked").val(),
+                    hobbies: all_hobbies,
+                    state: $("#state").children(":selected").attr("id"),
+                    city: $("#city").children(":selected").attr("id"),
+                    created_time: ctime
+                })
+                add_data();
+            }
+        })
+    })
+
+    function add_data() {
+        form_reset();
+        $("#tbody").empty();
+        $.each(table_data, function (index, val) {
+            var state = states[val.state]
+            var city = cities[val.state][val.city]
+            $("tbody").append("<tr><td>" + val.name + "</td><td>" + val.email + "</td><td>" + val.gender + "</td><td>" + val.hobbies + "</td><td>" + state + "</td><td>" + city + "</td><td>" + val.created_time + "</td><td><button class='btn btn-success edit' id=" + val.id + " onclick=edit_data(" + index + ")>Edit</button></td><td><button class='btn btn-danger delete' id=" + val.id + " onclick=delete_data(" + index + ")>Delete</button></td></tr>")
+        })
+    }
+
+    function delete_data(id) {
+        table_data.splice(id, 1)
+        add_data();
+    }
+
+    function form_reset() {
+        $("form")[0].reset();
+        $("input[name='gender']:checked").attr('checked', false);
+        $(".checkbox").find(":checked").attr("checked", false);
+        $("#state").children(":selected").attr('selected', false)
+        $("#city").empty().html("<option>Select City</option>");
+        if ($("#update_btn").css('display') != 'none') {
+            $("#submit_btn").css("display", "block")
+            $("#update_btn").css("display", "none")
+            $("#cancle_btn").css("display", "none")
+        }
+        $(".error_msg").text("")
+    }
+
+    function edit_data(index) {
+        $("#name").val(table_data[index].name)
+        $("#email").val(table_data[index].email)
+        $("#" + table_data[index].gender).attr('checked', true)
+        $.each(table_data[index].hobbies, function (index, val) {
+            $("#" + val).attr('checked', 'checked')
+        })
+        $("#" + table_data[index].state).attr('selected', true)
+        var state_id = $("#state").children(":selected").attr("id")
+        $.each(cities, function (key, val) {
+            if (state_id == key) {
+                $.each(val, function (key, value) {
+                    $("#city").append("<option id=" + key + ">" + value + "</option>")
+                })
+            }
+        })
+        $("#" + table_data[index].city).attr('selected', true);
+        $(".edit").attr('disabled', true);
+        $(".delete").attr('disabled', true);
+        $("#submit_btn").css("display", "none");
+        $("#update_btn").css("display", "block").attr('data-id', index);
+        $("#cancle_btn").css("display", "block");
+    }
+
+    function created_time() {
+        var date = new Date();
+        var ctime = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
+        return ctime;
+    }
+
+    function validation() {
+        var valid_name = $("#name").val()
+        var valid_email = $("#email").val()
+        var valid_gender = $(".gender").find(":checked").length
+        var valid_hobby = $(".checkbox").find(":checked").length
+        var valid_state = $("#state").val()
+        var valid_city = $("#city").val()
+        if (valid_name == "") {
+            $("#error_alert").text("Please Provide Name..!").addClass("alert alert-danger");
+            return false;
+        }
+        if (valid_email == "") {
+            $("#error_alert").text("Please Provide Email..!").addClass("alert alert-danger");
+            return false;
+        }
+        if (valid_gender == 0) {
+            $("#error_alert").text("Please Provide Gender..!").addClass("alert alert-danger");
+            return false;
+        }
+        if (valid_hobby == 0) {
+            $("#error_alert").text("Please Provide atleast one hobby..!").addClass("alert alert-danger");
+            return false;
+        }
+        if (valid_state == "Select State") {
+            $("#error_alert").text("Please Provide State..!").addClass("alert alert-danger");
+            return false;
+        }
+        if (valid_city == "Select City") {
+            $("#error_alert").text("Please Provide City..!").addClass("alert alert-danger");
+            return false;
+        }
+        else {
+            $("#error_alert").text("").removeClass("alert alert-danger");
+            return true;
+        }
+    }
+
+    $("body").on("click", "#update_btn", function () {
+        var index = $("#update_btn").attr('data-id');
+        var all_checked_hobbies = $(".checkbox").find(":checked");
+        var all_hobbies = [];
+        $.each(all_checked_hobbies, function (i, v) {
+            all_hobbies.push(all_checked_hobbies[i].value)
+        })
+        table_data[index] = {
+            id: index,
+            name: $("#name").val(),
+            email: $("#email").val(),
+            gender: $("input[name='gender']:checked").val(),
+            hobbies: all_hobbies,
+            state: $("#state").children(":selected").attr("id"),
+            city: $("#city").children(":selected").attr("id"),
+            created_time: table_data[index].created_time
+        }
+        $("#submit_btn").css("display", "block")
+        $("#update_btn").css("display", "none")
+        $("#cancle_btn").css("display", "none")
+        add_data();
+    });
+
+    $("body").on("keyup", "#searching", function () {
+        var s_value = $("#searching").val()
+        var search_array = []
+        $.each(table_data, function (index, val) {
+            var name = val.name
+            if (name.search(s_value) > -1) {
+                search_array.push(val)
+            }
+        })
+        $("#tbody").empty();
+        $.each(search_array, function (index, val) {
+            var state = states[val.state]
+            var city = cities[val.state][val.city]
+            $("tbody").append("<tr><td>" + val.name + "</td><td>" + val.email + "</td><td>" + val.gender + "</td><td>" + val.hobbies + "</td><td>" + state + "</td><td>" + city + "</td><td>" + val.created_time + "</td><td><button class='btn btn-success edit' id=" + val.id + " onclick=edit_data(" + index + ")>Edit</button></td><td><button class='btn btn-danger delete' id=" + val.id + " onclick=delete_data(" + index + ")>Delete</button></td></tr>")
+        })
+    })
+
+    $("body").on("change", "#sorting", function () {
+        if ($("#sorting").children(":selected").attr('id') == 'asc') {
+            table_data.sort(function (a, b) {
+                if (a.name < b.name) { return -1 };
+                if (a.name > b.name) { return 1 };
+                return 0;
+            })
+        }
+        if ($("#sorting").children(":selected").attr('id') == 'desc') {
+            table_data.sort(function (a, b) {
+                if (a.name < b.name) { return 1 };
+                if (a.name > b.name) { return -1 };
+                return 0;
+            })
+        }
+        add_data();
+    })
+</script>
+
+</html>
